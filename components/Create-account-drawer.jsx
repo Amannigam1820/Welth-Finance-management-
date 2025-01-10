@@ -46,15 +46,20 @@ const CreateAccountDrawer = ({ children }) => {
     },
   });
 
-  const {data:newAccount,error,fn:createAccountFn,loading:createAccountLoading} = useFetch(createAccount)
+  const {
+    data: newAccount,
+    error,
+    fn: createAccountFn,
+    loading: createAccountLoading,
+  } = useFetch(createAccount);
 
-  useEffect(()=>{
-    if(newAccount && !createAccountLoading){
-        toast.success("Account Created Successfully");
-        reset();
-        setOpen(false)
+  useEffect(() => {
+    if (newAccount && !createAccountLoading) {
+      toast.success("Account Created Successfully");
+      reset();
+      setOpen(false);
     }
-  },[createAccountLoading,newAccount])
+  }, [createAccountLoading, newAccount]);
 
   useEffect(() => {
     if (error) {
@@ -63,7 +68,7 @@ const CreateAccountDrawer = ({ children }) => {
   }, [error]);
 
   const onSubmit = async (data) => {
-    await createAccountFn(data)
+    await createAccountFn(data);
   };
   return (
     <Drawer open={open} onOpenChange={setOpen}>
@@ -73,7 +78,7 @@ const CreateAccountDrawer = ({ children }) => {
           <DrawerTitle>Create New Account</DrawerTitle>
         </DrawerHeader>
         <div className="px-4 pb-4">
-          <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
+          <form className="space-y-2" onSubmit={handleSubmit(onSubmit)}>
             <div className="space-y-2">
               <label htmlFor="name" className="text-sm font-medium">
                 Account Name
@@ -156,7 +161,7 @@ const CreateAccountDrawer = ({ children }) => {
               <Button
                 type="submit"
                 className="flex-1"
-                 disabled={createAccountLoading}
+                disabled={createAccountLoading}
               >
                 {createAccountLoading ? (
                   <>
@@ -166,7 +171,6 @@ const CreateAccountDrawer = ({ children }) => {
                 ) : (
                   "Create Account"
                 )}
-                
               </Button>
             </div>
           </form>
