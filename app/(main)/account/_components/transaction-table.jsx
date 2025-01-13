@@ -13,7 +13,6 @@ import {
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
@@ -59,6 +58,23 @@ const TransactionTable = ({ transactions }) => {
         current.field == field && current.direction === "asc" ? "desc" : "asc",
     }));
   };
+
+  const handleSelect = (id) => {
+    setSelectedIds((current) =>
+      current.includes(id)
+        ? current.filter((item) => item != id)
+        : [...current, id]
+    );
+  };
+  //console.log(selectedIds);
+
+  const handleSelectAll = () => {
+    setSelectedIds((current) =>
+      current.length === filteredAndSortedTransaction.length
+        ? []
+        : filteredAndSortedTransaction.map((t) => t.id)
+    );
+  };
   return (
     <div className="space-y-4">
       {/* Filters */}
@@ -68,7 +84,14 @@ const TransactionTable = ({ transactions }) => {
           <TableHeader>
             <TableRow>
               <TableHead className="w-[50px]">
-                <Checkbox />
+                <Checkbox
+                  onCheckedChange={handleSelectAll}
+                  checked={
+                    selectedIds.length ===
+                      filteredAndSortedTransaction.length &&
+                    filteredAndSortedTransaction.length > 0
+                  }
+                />
               </TableHead>
               <TableHead
                 className="cursor-pointer"
@@ -103,12 +126,15 @@ const TransactionTable = ({ transactions }) => {
                 className="cursor-pointer"
                 onClick={() => handleSort("amount")}
               >
-                <div className="flex items-center justify-end">Amount {sortConfig.field === "amount" &&
+                <div className="flex items-center justify-end">
+                  Amount{" "}
+                  {sortConfig.field === "amount" &&
                     (sortConfig.direction === "asc" ? (
                       <ChevronUp className="ml-1 h-4 w-4" />
                     ) : (
                       <ChevronDown className="ml-1 h-4 w-4" />
-                    ))}</div>
+                    ))}
+                </div>
               </TableHead>
               <TableHead>Recurring</TableHead>
               <TableHead className="w-[50px]"></TableHead>
@@ -128,7 +154,10 @@ const TransactionTable = ({ transactions }) => {
               filteredAndSortedTransaction.map((transaction) => (
                 <TableRow key={transaction.id}>
                   <TableCell>
-                    <Checkbox />
+                    <Checkbox
+                      onCheckedChange={() => handleSelect(transaction.id)}
+                      checked={selectedIds.includes(transaction.id)}
+                    />
                   </TableCell>
                   <TableCell>
                     {format(new Date(transaction.date), "PP")}
