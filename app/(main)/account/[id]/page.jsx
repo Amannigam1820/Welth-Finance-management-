@@ -10,6 +10,8 @@ const AccountPage = async({params}) => {
     notFound()
   }
   const {transactions, ...account} = accountData;
+  console.log(account);
+  
   return (
     <div className="space-y-6 px-4">
       <div className="flex gap-4 items-end justify-between">
