@@ -153,8 +153,8 @@ For inquiries or support, contact:
 - **Email**: amannigam18082001@gmail.com
 - **GitHub**: [Amannigam1820](https://github.com/Amannigam1820)
 
-## Acknowledgments
-Special thanks to the developers and contributors who made this project possible.
+
+
 
 ---
 
