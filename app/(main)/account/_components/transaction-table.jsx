@@ -69,17 +69,23 @@ const TransactionTable = ({ transactions }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [typeFilter, setTypeFilter] = useState("");
   const [recurringFilter, setRecurringFilter] = useState("");
-  
 
-  
   const filteredAndSortedTransaction = useMemo(() => {
     let result = [...transactions];
 
     // Apply Search Filter
+    // if (searchTerm) {
+    //   const searchLower = searchTerm.toLowerCase();
+    //   result = result.filter((transaction) =>
+    //     transaction.description?.toLowerCase().includes(searchLower)
+    //   );
+    // }
     if (searchTerm) {
-      const searchLower = searchTerm.toLowerCase();
+      const searchTerms = searchTerm.toLowerCase().split(" ").filter(Boolean); // Split terms by space
       result = result.filter((transaction) =>
-        transaction.description?.toLowerCase().includes(searchLower)
+        searchTerms.some((term) =>
+          transaction.description?.toLowerCase().includes(term)
+        )
       );
     }
 
@@ -134,8 +140,6 @@ const TransactionTable = ({ transactions }) => {
     );
   };
   //console.log(selectedIds);
- 
-
 
   const handleSelectAll = () => {
     setSelectedIds((current) =>
@@ -158,12 +162,8 @@ const TransactionTable = ({ transactions }) => {
       )
     )
       return;
-      
-      
 
     deleteFn(selectedIds);
-    
-    
   };
 
   useEffect(() => {
@@ -194,7 +194,7 @@ const TransactionTable = ({ transactions }) => {
             value={searchTerm}
             onChange={(e) => {
               setSearchTerm(e.target.value);
-              setCurrentPage(1);
+              //setCurrentPage(1);
             }}
             className="pl-8"
           />
@@ -390,13 +390,13 @@ const TransactionTable = ({ transactions }) => {
                   </TableCell>
                   <TableCell>
                     <DropdownMenu>
-                      <DropdownMenuTrigger>
+                      <DropdownMenuTrigger asChild>
                         <Button variant="ghost" className="h-8 w-8 p-0">
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent>
-                        <DropdownMenuLabel
+                        <DropdownMenuItem
                           onClick={() =>
                             router.push(
                               `/transaction/create?edit=${transaction.id}`
@@ -404,7 +404,7 @@ const TransactionTable = ({ transactions }) => {
                           }
                         >
                           Edit
-                        </DropdownMenuLabel>
+                        </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
                           className="text-destructive"
