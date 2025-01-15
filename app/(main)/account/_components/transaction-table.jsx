@@ -35,9 +35,12 @@ import {
 } from "@/components/ui/tooltip";
 import { categoryColors } from "@/data/category";
 import useFetch from "@/hooks/use-fetch";
+import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import {
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
   ChevronUp,
   Clock,
   MoreHorizontal,
@@ -57,6 +60,7 @@ const RECURRING_INTERVAL = {
   MONTHLY: "Monthly",
   YEARLY: "Yearly",
 };
+const ITEMS_PER_PAGE = 10;
 
 const TransactionTable = ({ transactions }) => {
   const router = useRouter();
@@ -70,6 +74,7 @@ const TransactionTable = ({ transactions }) => {
   const [typeFilter, setTypeFilter] = useState("");
   const [recurringFilter, setRecurringFilter] = useState("");
   const [amountRange, setAmountRange] = useState([0, 10000]);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const filteredAndSortedTransaction = useMemo(() => {
     let result = [...transactions];
@@ -143,6 +148,17 @@ const TransactionTable = ({ transactions }) => {
     amountRange,
   ]);
 
+  const totalPages = Math.ceil(
+    filteredAndSortedTransaction.length / ITEMS_PER_PAGE
+  );
+  const paginatedTransactions = useMemo(() => {
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    return filteredAndSortedTransaction.slice(
+      startIndex,
+      startIndex + ITEMS_PER_PAGE
+    );
+  }, [filteredAndSortedTransaction, currentPage]);
+
   const handleSort = (field) => {
     setSortConfig((current) => ({
       field,
@@ -199,6 +215,10 @@ const TransactionTable = ({ transactions }) => {
     setAmountRange([0, 10000]);
   };
   //console.log(filteredAndSortedTransaction);
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage);
+    setSelectedIds([]); // Clear selections on page change
+  };
 
   return (
     <div className="space-y-4">
@@ -215,13 +235,16 @@ const TransactionTable = ({ transactions }) => {
             value={searchTerm}
             onChange={(e) => {
               setSearchTerm(e.target.value);
-              //setCurrentPage(1);
+              setCurrentPage(1);
             }}
             className="pl-8"
           />
         </div>
         <div className="flex gap-2">
-          <Select value={typeFilter} onValueChange={setTypeFilter}>
+          <Select value={typeFilter}  onValueChange={(value) => {
+              setTypeFilter(value);
+              setCurrentPage(1);
+            }}>
             <SelectTrigger>
               <SelectValue placeholder="All Type" />
             </SelectTrigger>
@@ -233,7 +256,10 @@ const TransactionTable = ({ transactions }) => {
 
           <Select
             value={recurringFilter}
-            onValueChange={(value) => setRecurringFilter(value)}
+            onValueChange={(value) => {
+              setRecurringFilter(value);
+              setCurrentPage(1);
+            }}
           >
             <SelectTrigger className="w-[130px]">
               <SelectValue placeholder="All Transactions" />
@@ -293,9 +319,8 @@ const TransactionTable = ({ transactions }) => {
                 <Checkbox
                   onCheckedChange={handleSelectAll}
                   checked={
-                    selectedIds.length ===
-                      filteredAndSortedTransaction.length &&
-                    filteredAndSortedTransaction.length > 0
+                    selectedIds.length === paginatedTransactions.length &&
+                    paginatedTransactions.length > 0
                   }
                 />
               </TableHead>
@@ -347,22 +372,22 @@ const TransactionTable = ({ transactions }) => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredAndSortedTransaction.length === 0 ? (
+          {paginatedTransactions.length === 0 ? (
               <TableRow>
                 <TableCell
                   colSpan={7}
                   className="text-center text-muted-foreground"
                 >
-                  No Tranactions Found
+                  No transactions found
                 </TableCell>
               </TableRow>
             ) : (
-              filteredAndSortedTransaction.map((transaction) => (
+              paginatedTransactions.map((transaction) => (
                 <TableRow key={transaction.id}>
                   <TableCell>
                     <Checkbox
-                      onCheckedChange={() => handleSelect(transaction.id)}
                       checked={selectedIds.includes(transaction.id)}
+                      onCheckedChange={() => handleSelect(transaction.id)}
                     />
                   </TableCell>
                   <TableCell>
@@ -380,12 +405,13 @@ const TransactionTable = ({ transactions }) => {
                     </span>
                   </TableCell>
                   <TableCell
-                    className="text-right font-medium"
-                    style={{
-                      color: transaction.type === "EXPENSE" ? "red" : "green",
-                    }}
+                    className={cn(
+                      "text-right font-medium",
+                      transaction.type === "EXPENSE"
+                        ? "text-red-500"
+                        : "text-green-500"
+                    )}
                   >
-                    {" "}
                     {transaction.type === "EXPENSE" ? "-" : "+"}$
                     {transaction.amount.toFixed(2)}
                   </TableCell>
@@ -395,7 +421,7 @@ const TransactionTable = ({ transactions }) => {
                         <Tooltip>
                           <TooltipTrigger>
                             <Badge
-                              variant="outline"
+                              variant="secondary"
                               className="gap-1 bg-purple-100 text-purple-700 hover:bg-purple-200"
                             >
                               <RefreshCw className="h-3 w-3" />
@@ -408,11 +434,11 @@ const TransactionTable = ({ transactions }) => {
                           </TooltipTrigger>
                           <TooltipContent>
                             <div className="text-sm">
-                              <div className="font-medium">Next Date :</div>
+                              <div className="font-medium">Next Date:</div>
                               <div>
                                 {format(
                                   new Date(transaction.nextRecurringDate),
-                                  "PP"
+                                  "PPP"
                                 )}
                               </div>
                             </div>
@@ -422,7 +448,7 @@ const TransactionTable = ({ transactions }) => {
                     ) : (
                       <Badge variant="outline" className="gap-1">
                         <Clock className="h-3 w-3" />
-                        One-Time
+                        One-time
                       </Badge>
                     )}
                   </TableCell>
@@ -433,7 +459,7 @@ const TransactionTable = ({ transactions }) => {
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent>
+                      <DropdownMenuContent align="end">
                         <DropdownMenuItem
                           onClick={() =>
                             router.push(
@@ -459,6 +485,30 @@ const TransactionTable = ({ transactions }) => {
           </TableBody>
         </Table>
       </div>
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-2">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          <span className="text-sm">
+            Page {currentPage} of {totalPages}
+          </span>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+          >
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+        </div>
+      )}
+
     </div>
   );
 };
