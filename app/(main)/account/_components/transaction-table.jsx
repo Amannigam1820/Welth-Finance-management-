@@ -7,7 +7,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -19,6 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Slider } from "@/components/ui/slider";
 import {
   Table,
   TableBody,
@@ -69,6 +69,7 @@ const TransactionTable = ({ transactions }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [typeFilter, setTypeFilter] = useState("");
   const [recurringFilter, setRecurringFilter] = useState("");
+  const [amountRange, setAmountRange] = useState([0, 10000]);
 
   const filteredAndSortedTransaction = useMemo(() => {
     let result = [...transactions];
@@ -102,6 +103,17 @@ const TransactionTable = ({ transactions }) => {
       });
     }
 
+    // Amount range filter
+    if (amountRange) {
+      result = result.filter(
+        (transaction) =>
+          transaction.amount >= amountRange[0] &&
+          transaction.amount <= amountRange[1]
+      );
+    }
+
+    //console.log(amountRange);
+
     result.sort((a, b) => {
       let comparison = 0;
 
@@ -122,7 +134,14 @@ const TransactionTable = ({ transactions }) => {
       return sortConfig.direction === "asc" ? comparison : -comparison;
     });
     return result;
-  }, [transactions, searchTerm, typeFilter, recurringFilter, sortConfig]);
+  }, [
+    transactions,
+    searchTerm,
+    typeFilter,
+    recurringFilter,
+    sortConfig,
+    amountRange,
+  ]);
 
   const handleSort = (field) => {
     setSortConfig((current) => ({
@@ -177,7 +196,9 @@ const TransactionTable = ({ transactions }) => {
     setTypeFilter("");
     setRecurringFilter("");
     //setSelectedIds([]);
+    setAmountRange([0, 10000]);
   };
+  //console.log(filteredAndSortedTransaction);
 
   return (
     <div className="space-y-4">
@@ -222,6 +243,23 @@ const TransactionTable = ({ transactions }) => {
               <SelectItem value="non-recurring">Non-recurring Only</SelectItem>
             </SelectContent>
           </Select>
+          <div className="flex flex-col gap-1">
+            <label className="text-sm text-muted-foreground">
+              Amount Range
+            </label>
+            <Slider
+              value={amountRange}
+              onValueChange={setAmountRange}
+              min={0}
+              max={10000}
+              step={100}
+              className="w-[200px]"
+            />
+            <div className="flex justify-between text-sm text-muted-foreground">
+              <span>${amountRange[0]}</span>
+              <span>${amountRange[1]}</span>
+            </div>
+          </div>
           {selectedIds.length > 0 && (
             <div className="flex itmes-center gap-2">
               <Button
