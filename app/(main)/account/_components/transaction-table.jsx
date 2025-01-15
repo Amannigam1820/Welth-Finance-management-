@@ -241,10 +241,13 @@ const TransactionTable = ({ transactions }) => {
           />
         </div>
         <div className="flex gap-2">
-          <Select value={typeFilter}  onValueChange={(value) => {
+          <Select
+            value={typeFilter}
+            onValueChange={(value) => {
               setTypeFilter(value);
               setCurrentPage(1);
-            }}>
+            }}
+          >
             <SelectTrigger>
               <SelectValue placeholder="All Type" />
             </SelectTrigger>
@@ -372,7 +375,7 @@ const TransactionTable = ({ transactions }) => {
             </TableRow>
           </TableHeader>
           <TableBody>
-          {paginatedTransactions.length === 0 ? (
+            {paginatedTransactions.length === 0 ? (
               <TableRow>
                 <TableCell
                   colSpan={7}
@@ -508,7 +511,6 @@ const TransactionTable = ({ transactions }) => {
           </Button>
         </div>
       )}
-
     </div>
   );
 };
