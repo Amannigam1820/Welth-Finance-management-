@@ -1,20 +1,26 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
-import { 
-  Chart3DComponent, 
-  Chart3DSeriesCollectionDirective, 
-  Chart3DSeriesDirective, 
-  Category3D, 
-  Inject, 
-  Legend3D, 
-  DataLabel3D, 
-  Tooltip3D, 
+import {
+  Chart3DComponent,
+  Chart3DSeriesCollectionDirective,
+  Chart3DSeriesDirective,
+  Category3D,
+  Inject,
+  Legend3D,
+  DataLabel3D,
+  Tooltip3D,
   ColumnSeries3D, // Changed to ColumnSeries3D
-  Highlight3D 
-} from '@syncfusion/ej2-react-charts';
+  Highlight3D,
+} from "@syncfusion/ej2-react-charts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { endOfDay, format, startOfDay, subDays } from "date-fns";
 
 const DATE_RANGES = {
@@ -69,9 +75,11 @@ const AccountChart = ({ transactions }) => {
     );
   }, [filteredData]);
 
-  const tooltip = { enable: true,
-    
-    format: '<b>${series.name} : ${point.y}</b>' };
+  const tooltip = {
+    enable: true,
+
+    format: "<b>${series.name} : ${point.y}</b>",
+  };
 
   return (
     <div>
@@ -123,7 +131,7 @@ const AccountChart = ({ transactions }) => {
           <div className="h-[300px]">
             <Chart3DComponent
               id="charts"
-              primaryXAxis={{ valueType: 'Category' }}
+              primaryXAxis={{ valueType: "Category" }}
               wallColor="transparent"
               enableRotation={true}
               rotation={7}
@@ -133,7 +141,7 @@ const AccountChart = ({ transactions }) => {
             >
               <Inject
                 services={[
-                  ColumnSeries3D, // Using ColumnSeries3D here
+                  ColumnSeries3D, 
                   Category3D,
                   Legend3D,
                   Tooltip3D,
